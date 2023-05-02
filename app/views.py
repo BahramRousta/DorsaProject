@@ -8,13 +8,14 @@ from .serializers import (
     TotalParametersSerializer
 )
 from .models import Parameter
+from .throttles import ApiMethodThrottle, SumThrottle
 
 
 class CalculateSumParamsAPIView(APIView):
     """Parameters API view."""
     serializer_class = ParametersSerializer
     permission_classes = [AllowAny]
-    throttle_scope = 'sum'
+    throttle_classes = [ApiMethodThrottle, SumThrottle]
 
     def get(self, request):
 
@@ -37,7 +38,8 @@ class CalculateSumParamsAPIView(APIView):
 class GetParamsHistoryAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = ParamsHistorySerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    throttle_classes = [ApiMethodThrottle]
 
     def get(self, request):
         params = Parameter.objects.all()
@@ -48,7 +50,8 @@ class GetParamsHistoryAPIView(APIView):
 class GetTotalParamsAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = TotalParametersSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    throttle_classes = [ApiMethodThrottle]
 
     def get(self, request):
         params = Parameter.objects.all()

@@ -132,9 +132,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.ScopedRateThrottle',
+        'app.throttles.SumThrottle',
+        'app.throttles.ApiMethodThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'sum': '100/hour',
+        'sum': '5/minute',
+        'wrong_method': '2/minute',
     }
 }
