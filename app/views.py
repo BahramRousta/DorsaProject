@@ -1,6 +1,11 @@
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import ParametersSerializer
+from .serializers import (
+    ParametersSerializer,
+    ParamsHistorySerializer,
+    TotalParametersSerializer
+)
 from .models import Parameter
 
 
@@ -21,10 +26,27 @@ class CalculateParamsAPIView(APIView):
         total = (a + b)
 
         # Create new parameters
-        Parameter.objects.create(params={
-            "a": a,
-            "b": b,
-            "total": total
-        })
+        Parameter.objects.create(a=a, b=b, total=total)
 
         return Response({'result': total})
+
+
+class GetParamsHistoryAPIView(APIView):
+    """Get parameters history API view."""
+    serializer_class = ParamsHistorySerializer
+
+    def get(self, request):
+        params = Parameter.objects.all()
+        serializer = self.serializer_class(params, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetTotalParamsAPIView(APIView):
+    """Get parameters history API view."""
+    serializer_class = TotalParametersSerializer
+
+    def get(self, request):
+        params = Parameter.objects.all()
+        print(params)
+        serializer = self.serializer_class(params, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
