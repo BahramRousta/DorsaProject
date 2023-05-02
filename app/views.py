@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (
@@ -9,9 +10,11 @@ from .serializers import (
 from .models import Parameter
 
 
-class CalculateParamsAPIView(APIView):
+class CalculateSumParamsAPIView(APIView):
     """Parameters API view."""
     serializer_class = ParametersSerializer
+    permission_classes = [AllowAny]
+    throttle_scope = 'sum'
 
     def get(self, request):
 
@@ -34,6 +37,7 @@ class CalculateParamsAPIView(APIView):
 class GetParamsHistoryAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = ParamsHistorySerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         params = Parameter.objects.all()
@@ -44,6 +48,7 @@ class GetParamsHistoryAPIView(APIView):
 class GetTotalParamsAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = TotalParametersSerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         params = Parameter.objects.all()
