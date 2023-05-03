@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from user.models import CustomUser
 from user.serializers import LoginSerializer, ObtainTokenSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from log.user_logger import user_logger
 
 
 class LoginAPIView(APIView):
@@ -15,12 +16,17 @@ class LoginAPIView(APIView):
     def _obtain_token(self, request, user):
         """Return access and refresh token for user."""
 
-        refresh = RefreshToken.for_user(user)
-        token = ObtainTokenSerializer({
-            'refresh_token': str(refresh),
-            'access_token': str(refresh.access_token)
-        }).data
-        return token
+        try:
+            refresh = RefreshToken.for_user(user)
+            token = ObtainTokenSerializer({
+                'refresh_token': str(refresh),
+                'access_token': str(refresh.access_token)
+            }).data
+            user_logger.info(f"Token generated for {user.username} - {__name__}.")
+            return token
+        except Exception as e:
+            user_logger.error(f"Failed to generate token for {user.username} - {__name__}.")
+            raise e
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -33,8 +39,20 @@ class LoginAPIView(APIView):
             # Validate password
             if user and user.check_password(data["password"]):
                 login(request, user)
-                return Response(status=status.HTTP_200_OK, data=self._obtain_token(request, user))
+                user_logger.info(f"User {user.username} logged in successfully - {__name__} - {request.path}")
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=self._obtain_token(request, user)
+                )
             else:
-                return Response(status=status.HTTP_403_FORBIDDEN, data={"Message": "The information is invalid."})
+                user_logger.error(f"User login failed. - {__name__} - {request.path}")
+                return Response(
+                    status=status.HTTP_403_FORBIDDEN,
+                    data={"Message": "The user information is invalid."}
+                )
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+            user_logger.error(f"User data is not valid. - {__name__} - {request.path}")
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data=serializer.errors
+            )
