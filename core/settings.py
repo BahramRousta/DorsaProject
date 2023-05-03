@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
         'app.throttles.ApiMethodThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'sum': '5/minute',
-        'wrong_method': '2/minute',
+        'sum': '100/hour',
+        'wrong_method_params': '15/hour',
     }
 }
