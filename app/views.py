@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -31,7 +32,6 @@ class CalculateSumParamsAPIView(APIView):
 
         # Create new parameters
         Parameter.objects.create(a=a, b=b, total=total)
-
         return Response({'result': total})
 
 
@@ -42,8 +42,13 @@ class GetParamsHistoryAPIView(APIView):
     throttle_classes = [ApiWrongMethodThrottle]
 
     def get(self, request):
-        params = Parameter.objects.all()
-        serializer = self.serializer_class(params, many=True)
+        params_objects = cache.get('history_params_objects')
+        print('read params_objects from cache')
+        if params_objects is None:
+            params_objects = Parameter.objects.all()
+            cache.set('history_params_objects', params_objects)
+            print('write params_objects to cache')
+        serializer = self.serializer_class(params_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -54,6 +59,12 @@ class GetTotalParamsAPIView(APIView):
     throttle_classes = [ApiWrongMethodThrottle]
 
     def get(self, request):
-        params = Parameter.objects.all()
-        serializer = self.serializer_class(params, many=True)
+        params_objects = cache.get('total_params_objects')
+        if params_objects:
+            print('total = read params_objects from cache')
+        if params_objects is None:
+            params_objects = Parameter.objects.all()
+            cache.set('total_params_objects', params_objects)
+            print('total = write params_objects to cache')
+        serializer = self.serializer_class(params_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
