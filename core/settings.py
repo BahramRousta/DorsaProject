@@ -139,7 +139,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'sum': '100/hour',
-        'wrong_method_params': '15/hour',
+        'wrong_method_params': '3/minute',
     },
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
