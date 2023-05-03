@@ -51,11 +51,11 @@ class GetParamsHistoryAPIView(APIView):
     def get(self, request):
         params_objects = cache.get('history_params_objects')
         if params_objects:
-            app_logger.info(f'History get from cache = {__name__} - {request.path}')
+            app_logger.info(f'Params history get from cache = {__name__} - {request.path}')
         if params_objects is None:
             params_objects = Parameter.objects.all()
             cache.set('history_params_objects', params_objects)
-            app_logger.info(f'History write into cache = {__name__} - {request.path}')
+            app_logger.info(f'Params history write into cache = {__name__} - {request.path}')
         serializer = self.serializer_class(params_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
