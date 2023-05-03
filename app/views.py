@@ -38,7 +38,7 @@ class CalculateSumParamsAPIView(APIView):
 class GetParamsHistoryAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = ParamsHistorySerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     throttle_classes = [ApiWrongMethodThrottle]
 
     def get(self, request):
@@ -50,7 +50,7 @@ class GetParamsHistoryAPIView(APIView):
 class GetTotalParamsAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = TotalParametersSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     throttle_classes = [ApiWrongMethodThrottle]
 
     def get(self, request):
