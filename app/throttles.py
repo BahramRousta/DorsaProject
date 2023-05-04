@@ -1,48 +1,42 @@
-from rest_framework.throttling import SimpleRateThrottle, UserRateThrottle
+from rest_framework.throttling import SimpleRateThrottle, UserRateThrottle, AnonRateThrottle
 from .serializers import ParametersSerializer
 
 
-class SumThrottle(UserRateThrottle):
+class SumAnonymousRateThrottle(AnonRateThrottle):
     """
     Throttle the number of requests per hour for the CalculateSum api view
     """
-    scope ='sum'
+    scope = 'sum_anon'
 
 
-class ApiWrongMethodThrottle(SimpleRateThrottle):
+class SumUserRateThrottle(UserRateThrottle):
     """
-    Throttle the number of requests per hour with the wrong method and wrong params
+    Throttle the number of requests per hour for the CalculateSum api view
+    """
+    scope = 'sum_user'
+
+
+class ApiWrongMethodThrottle(UserRateThrottle):
+    """
+    Throttle the number of requests per hour with the wrong method
     """
     scope = 'wrong_method_params'
-    rate = '3/hour'
-
-    def get_cache_key(self, request, view):
-
-        # Only apply throttling to requests with the wrong method and wrong params
-        if request.method in view.allowed_methods:
-            if not request.query_params:
-                return True
-            elif ParametersSerializer(data=request.query_params).is_valid():
-                return True
-            else:
-                return self.cache_format % {
-                    'scope': self.scope,
-                    'ident': self.get_ident(request)
-                }
-        else:
-            return self.cache_format % {
-                'scope': self.scope,
-                'ident': self.get_ident(request)
-            }
 
     def allow_request(self, request, view):
-
         if request.method in view.allowed_methods:
-            if not request.query_params:
-                return True
-            elif ParametersSerializer(data=request.query_params).is_valid():
-                return True
-            else:
-                return super().allow_request(request, view)
+            return True
+        else:
+            return super().allow_request(request, view)
+
+
+class DataWrongThrottle(UserRateThrottle):
+    """
+    Throttle the number of requests per hour with the wrong data
+    """
+    scope = 'data_wrong'
+
+    def allow_request(self, request, view):
+        if not request.query_params or ParametersSerializer(data=request.query_params).is_valid():
+            return True
         else:
             return super().allow_request(request, view)
