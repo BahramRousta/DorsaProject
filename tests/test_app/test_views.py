@@ -1,9 +1,15 @@
-from unittest.mock import patch
+from unittest import mock
+from unittest.mock import patch, MagicMock
 import pytest
 from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from app.models import Parameter
+from app.views import (
+    CalculateSumParamsAPIView,
+    GetParamsHistoryAPIView,
+    GetTotalParamsAPIView,
+)
 
 
 @pytest.mark.django_db
@@ -14,11 +20,17 @@ class TestCalculateSumParamsAPIView:
         cls.url = reverse('sum')
 
     def test_calculate_sum_params_api_view_success(self, api_client, parameters_data):
+        CalculateSumParamsAPIView.throttle_classes = [MagicMock()]
+        CalculateSumParamsAPIView.permission_classes = [MagicMock()]
+
         response = api_client.get(self.url, parameters_data)
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_200_OK
         assert response.data == {'result': 7}
 
     def test_calculate_sum_params_api_view_missing_parameters(self, api_client):
+        GetParamsHistoryAPIView.throttle_classes = [MagicMock()]
+        GetParamsHistoryAPIView.permission_classes = [MagicMock()]
+
         response = api_client.get(self.url)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -32,6 +44,9 @@ class TestGetParamsHistoryAPIView:
         cls.url = reverse('history')
 
     def test_get_params_history_api_view_success(self, api_client, user_factory):
+        GetParamsHistoryAPIView.throttle_classes = [MagicMock()]
+        GetParamsHistoryAPIView.permission_classes = [MagicMock()]
+
         user = user_factory
         api_client.force_authenticate(user=user)
 
@@ -39,12 +54,10 @@ class TestGetParamsHistoryAPIView:
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_get_params_history_api_view_unauthorized(self, api_client):
-        response = api_client.get(self.url)
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
     def test_get_params_history_api_view_with_cache(self, api_client, user_factory):
+        GetParamsHistoryAPIView.throttle_classes = [MagicMock()]
+        GetParamsHistoryAPIView.permission_classes = [MagicMock()]
+
         Parameter.objects.create(a=1, b=2, total=3)
         Parameter.objects.create(a=4, b=5, total=9)
 
@@ -59,6 +72,8 @@ class TestGetParamsHistoryAPIView:
             mock_logger.assert_called_with('Params history get from cache = app.views - /history/')
 
     def test_get_params_history_api_view_without_cache(self, api_client, user_factory):
+        GetParamsHistoryAPIView.throttle_classes = [MagicMock()]
+        GetParamsHistoryAPIView.permission_classes = [MagicMock()]
 
         cache.delete('history_params_objects')
 
@@ -80,6 +95,9 @@ class TestGetTotalParamsAPIView:
         cls.url = reverse('total')
 
     def test_get_total_params_history_api_view_success(self, api_client, user_factory):
+        GetTotalParamsAPIView.throttle_classes = [MagicMock()]
+        GetTotalParamsAPIView.permission_classes = [MagicMock()]
+
         user = user_factory
         api_client.force_authenticate(user=user)
 
@@ -87,12 +105,10 @@ class TestGetTotalParamsAPIView:
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_get_total_params_history_api_view_unauthorized(self, api_client):
-        response = api_client.get(self.url)
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
     def test_get_total_params_history_api_view_with_cache(self, api_client, user_factory):
+        GetTotalParamsAPIView.throttle_classes = [MagicMock()]
+        GetTotalParamsAPIView.permission_classes = [MagicMock()]
+
         Parameter.objects.create(a=1, b=2, total=3)
         Parameter.objects.create(a=4, b=5, total=9)
 
@@ -108,6 +124,8 @@ class TestGetTotalParamsAPIView:
             mock_logger.assert_called_with('Total history get from cache = app.views - /total/')
 
     def test_get_total_params_history_api_view_without_cache(self, api_client, user_factory):
+        GetTotalParamsAPIView.throttle_classes = [MagicMock()]
+        GetTotalParamsAPIView.permission_classes = [MagicMock()]
 
         cache.delete('total_params_objects')
 

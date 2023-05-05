@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -5,10 +7,11 @@ from rest_framework.test import APIClient
 from user.models import CustomUser
 
 
-
-
 @pytest.mark.django_db
-def test_login_api_view(api_client):
+@patch('app.throttles.DataWrongThrottle.allow_request', return_value=True)
+@patch('app.throttles.ApiWrongMethodThrottle.allow_request', return_value=True)
+@patch('app.throttles.WrongQueryParamsThrottle.allow_request', return_value=True)
+def test_login_api_view(mock_throttle1, mock_throttle2, mock_throttle3, api_client):
     # Create a user for testing
     user = CustomUser.objects.create_user(username='testuser', password='testpass')
 

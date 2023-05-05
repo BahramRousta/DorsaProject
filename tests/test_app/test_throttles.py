@@ -27,7 +27,7 @@ class TestThrottles:
         api_client.force_authenticate(user)
         url = reverse('total')
 
-        for i in range(10):
+        for i in range(15):
             api_client.post(url, parameters_data)
 
         response = api_client.post(url)
