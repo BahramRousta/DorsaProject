@@ -1,6 +1,9 @@
 from django.core.cache import cache
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from log.app_logger import app_logger
@@ -10,14 +13,25 @@ from .serializers import (
     TotalParametersSerializer
 )
 from .models import Parameter
-from .throttles import ApiWrongMethodThrottle, SumUserRateThrottle, SumAnonymousRateThrottle, DataWrongThrottle
+from .throttles import (
+    ApiWrongMethodThrottle,
+    SumUserRateThrottle,
+    SumAnonymousRateThrottle,
+    DataWrongThrottle,
+    WrongQueryParamsThrottle
+)
 
 
 class CalculateSumParamsAPIView(APIView):
     """Parameters API view."""
     serializer_class = ParametersSerializer
     permission_classes = [AllowAny]
-    throttle_classes = [SumUserRateThrottle, SumAnonymousRateThrottle, ApiWrongMethodThrottle, DataWrongThrottle]
+    throttle_classes = [
+        SumUserRateThrottle,
+        SumAnonymousRateThrottle,
+        ApiWrongMethodThrottle,
+        DataWrongThrottle
+    ]
 
     def get(self, request):
 
@@ -36,7 +50,7 @@ class CalculateSumParamsAPIView(APIView):
         try:
             Parameter.objects.create(a=a, b=b, total=total)
             app_logger.info(f'Created new parameters from {a} + {b}, {__name__} - {request.path}')
-            return Response({'result': total}, status=status.HTTP_201_CREATED)
+            return Response({'result': total}, status=status.HTTP_200_OK)
         except Exception as e:
             app_logger.exception(e, __name__)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -46,16 +60,24 @@ class GetParamsHistoryAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = ParamsHistorySerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [ApiWrongMethodThrottle, DataWrongThrottle]
+    throttle_classes = [ApiWrongMethodThrottle, WrongQueryParamsThrottle]
 
     def get(self, request):
+
+        if request.query_params:
+            return Response(
+                {'error': 'Query parameters not allowed for this endpoint.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         params_objects = cache.get('history_params_objects')
         if params_objects:
             app_logger.info(f'Params history get from cache = {__name__} - {request.path}')
+
         if params_objects is None:
             params_objects = Parameter.objects.all()
             cache.set('history_params_objects', params_objects)
             app_logger.info(f'Params history write into cache = {__name__} - {request.path}')
+
         serializer = self.serializer_class(params_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -64,9 +86,15 @@ class GetTotalParamsAPIView(APIView):
     """Get parameters history API view."""
     serializer_class = TotalParametersSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [ApiWrongMethodThrottle, DataWrongThrottle]
+    throttle_classes = [ApiWrongMethodThrottle, WrongQueryParamsThrottle]
 
     def get(self, request):
+        if request.query_params:
+            return Response(
+                {'error': 'Query parameters not allowed for this endpoint.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         params_objects = cache.get('total_params_objects')
         if params_objects:
             app_logger.info(f'Total history get from cache = {__name__} - {request.path}')

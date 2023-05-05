@@ -134,16 +134,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
-        'app.throttles.SumAnonymousRateThrottle',
-        'app.throttles.SumUserRateThrottle',
         'app.throttles.DataWrongThrottle',
         'app.throttles.ApiWrongMethodThrottle',
+        'app.throttles.WrongQueryParamsThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'sum_anon': '100/hour',
-        'sum_user': '100/hour',
-        'wrong_method_params': '5/hour',
-        'data_wrong': '5/hour',
+        'wrong_method_params': '15/hour',
+        'data_wrong': '15/hour',
+        'query_wrong': '15/hour',
     },
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
