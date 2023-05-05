@@ -52,7 +52,7 @@ This is a Django REST service with four APIs: sum, all, total and login.
     GET /total
 **Response:** 
 
-    Returns a JSON object containing the total of all a and b that have been requested so far.
+    Returns a JSON object containing the total of all a and b that have been requested so far. For reach to this api user must first login.
     {
       "total": 10.0
     }
@@ -64,6 +64,13 @@ This is a Django REST service with four APIs: sum, all, total and login.
 **Endpoint:**
 
     POST /login
+    
+**Parameters:**    
+    
+| Parameter | Type | Description       |
+|-----------|---------|-------------------|
+| username  | string  | username  |
+| password  | string  | password |
     
 **Response:** 
 
@@ -80,7 +87,7 @@ This is a Django REST service with four APIs: sum, all, total and login.
     cd DorsaProject
     
     create ENV and active it:
-        for win: python -m venv env
+        python -m venv env
     install dependencies:
         pip install -r requirements.txt
     create db
@@ -88,7 +95,9 @@ This is a Django REST service with four APIs: sum, all, total and login.
         python manage.py migrate
     create superuser:
         python manage.py createsuperuser
-    Run the server:
+    run the server:
         python manage.py runserver
-
+    run test:
+        pytest
+        
 The server will start running at http://localhost:8000/.
