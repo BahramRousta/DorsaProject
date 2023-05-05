@@ -60,7 +60,9 @@ This is a Django REST service with three APIs: sum, all, and total.
     git clone https://github.com/BahramRousta/DorsaProject.git
 
     cd DorsaProject
-
+    
+    Create ENV and active it:
+        python -m venv env
     Install dependencies:
         pip install -r requirements.txt
     Run the server:
