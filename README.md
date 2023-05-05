@@ -57,7 +57,7 @@ This is a Django REST service with three APIs: sum, all, and total.
 
 **Installation:**
 
-    git clone https://github.com/BahramRousta/DorsaPrj.git
+    git clone https://github.com/BahramRousta/DorsaProject.git
 
     cd django-rest-service
 
