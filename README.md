@@ -2,7 +2,7 @@
 
 # Django REST Service
 
-This is a Django REST service with four APIs: sum, all, total and login.
+This is a Django REST service with four APIs: sum, history, total and login.
 
 **SUM API**:
 
